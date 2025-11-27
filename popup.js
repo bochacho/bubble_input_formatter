@@ -49,12 +49,3 @@ function formatJson(obj){
     }
   return result
 }
-
-function customStringify(obj, space = 2){
-    const indent = typeof space === 'number' ? ' '.repeat(space) : space;
-    const newline = indent ? '\n' : '';
-    const separator = indent ? ',\n' : ', ';
-    const colonSpace = ' ';
-
-    
-}
