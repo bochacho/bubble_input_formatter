@@ -8,10 +8,19 @@
 </head>
 <body>
   <div class="container">
-    <h1>JSON Formatter</h1>
-
+    <div class="toggle-container">
+      <div class="toggle-wrapper">
+        <span class="toggle-label" data-mode="json">JSON</span>
+        <label class="switch">
+          <input type="checkbox" id="modeToggle">
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-label" data-mode="url">URL</span>
+      </div>
+    </div>
+    <h1 id="modeTitle">JSON Formatter</h1>
     <div class="section">
-      <label for="input">Input JSON:</label>
+      <label for="input" id="inputLabel">Input JSON:</label>
       <textarea id="input" placeholder='{"name":"","age":15}'></textarea>
     </div>
 
@@ -21,13 +30,14 @@
     </div>
 
     <div class="section">
-      <label for="output">Output:</label>
+      <label for="output" id="outputLabel">Output:</label>
       <textarea id="output" readonly></textarea>
     </div>
 
     <div class="button-group">
       <button id="copyBtn">Copy to Clipboard</button>
     </div>
+    <h4>x-data-source=[x-source]</h4>
 
     <div id="message" class="message"></div>
   </div>

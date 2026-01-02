@@ -1,9 +1,15 @@
+//todo: Add support for curl to get a formatted CURL
+// body - modify data to format acording to the formatValue function
+// URL -
+
 const inputTextArea = document.getElementById('input')
 const outputTextArea = document.getElementById('output')
 const formatBtn = document.getElementById('formatBtn')
 const clearBtn = document.getElementById('clearBtn')
 const copyBtn = document.getElementById('copyBtn')
 const messageDiv = document.getElementById('message')
+
+let currentMode = 'json'; // 'json' or 'url'
 
 // formats the individual value
 function formatValue(key, value) {
@@ -50,6 +56,38 @@ function formatJson(obj){
   return result
 }
 
+function formatUrl(url){
+  // const new_url = url.replace(/^"(.*)"$/, '$1');
+  // Replace version (e.g., v2, v1) with [x-version] in pattern /api:key:version/
+  let formattedUrl = url.replace(/(\/api:[^:]+:)[^\/]+(\/.*)/g, '$1[x-version]$2');
+  // Replace path parameters {param_name} with [param_name]
+  formattedUrl = formattedUrl.replace(/\{([^}]+)\}/g, '[$1]');
+  return `${formattedUrl}?x-data-source=[x-source]`;
+}
+
+function updateUIForMode() {
+  if (currentMode === 'json'){
+    modeTitle.textContent = 'JSON Formatter';
+    inputLabel.textContent = 'Input JSON:';
+    inputTextArea.placeholder = '{"name":"","age":15}';
+    formatBtn.textContent = 'Format JSON';
+    toggleLabels[0].classList.add('active');
+    toggleLabels[1].classList.remove('active');
+  } else {
+    modeTitle.textContent = 'URL Formatter';
+    inputLabel.textContent = 'Input URL:';
+    inputTextArea.placeholder = 'https://example.com?name=&age=15';
+    formatBtn.textContent = 'Format URL';
+    toggleLabels[0].classList.remove('active');
+    toggleLabels[1].classList.add('active');
+  }
+
+  // Clear inputs when switching modes
+  inputTextArea.value = '';
+  outputTextArea.value = '';
+  messageDiv.style.display = 'none';
+}
+
 function stringify(obj, space=2){
   const indent = typeof space === 'number' ? ' '.repeat(space) : space;
   const newline = indent ? '\n' : '';
@@ -84,18 +122,23 @@ formatBtn.addEventListener('click', () => {
     const inputText = inputTextArea.value.trim();
 
     if (!inputText) {
-      showMessage('Please enter JSON to format', 'error');
+      showMessage(`Please enter ${currentMode === 'json' ? "json" : "url"} to format`, 'error');
       return;
     }
 
-    const jsonObj = JSON.parse(inputText);
+    if (currentMode === 'json'){
+      const jsonObj = JSON.parse(inputText);
+      const formatted = formatJson(jsonObj);
+      let jsonString = stringify(formatted, 2);
+        
+      // Display the result
+      outputTextArea.value = jsonString;
+    } else {
+      const url = inputText;
+      const formatted = formatUrl(url)
+      outputTextArea.value = formatted;
+    }
 
-    const formatted = formatJson(jsonObj);
-
-    let jsonString = stringify(formatted, 2);
-
-    // Display the result
-    outputTextArea.value = jsonString;
     showMessage('JSON formatted successfully!', 'success');
 
   } catch (error) {
@@ -103,6 +146,8 @@ formatBtn.addEventListener('click', () => {
     outputTextArea.value = '';
   }
 });
+
+
 
 clearBtn.addEventListener('click', () => {
   inputTextArea.value = '';
@@ -126,3 +171,11 @@ copyBtn.addEventListener('click', async () => {
     showMessage('Failed to copy to clipboard', 'error');
   }
 });
+
+modeToggle.addEventListener('change', (e) => {
+  currentMode = e.target.checked ? 'url' : 'json';
+  updateUIForMode();
+});
+
+// Initialize UI
+updateUIForMode();
